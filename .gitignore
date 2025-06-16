@@ -1,3 +1,4 @@
-Lunar
-.git
-Libraries/*.a
+./Lunar
+./.git
+./Libraries/*.a
+./Tests/
