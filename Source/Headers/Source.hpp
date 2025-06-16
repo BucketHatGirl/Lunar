@@ -2,6 +2,7 @@
 
 #include <string>
 
+
 namespace Source {
   #if defined(_WIN32)
     #include <windows.h>
