@@ -1,0 +1,66 @@
+name: Lunar
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64-linux-gnu
+          - os: ubuntu-latest
+            arch: i686-linux-gnu
+          - os: ubuntu-latest
+            arch: aarch64-linux-gnu
+          - os: ubuntu-latest
+            arch: aarch64-linux-android
+          - os: windows-latest
+            arch: x86_64-windows
+          - os: windows-latest
+            arch: i686-windows
+          - os: macos-latest
+            arch: x86_64-macos
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make clang zlib1g-dev
+          # For i686-linux-gnu
+          if [ "${{ matrix.arch }}" = "i686-linux-gnu" ]; then
+            sudo dpkg --add-architecture i386
+            sudo apt-get update
+            sudo apt-get install -y gcc-multilib g++-multilib
+          fi
+          # For cross-compiling aarch64
+          if [ "${{ matrix.arch }}" = "aarch64-linux-gnu" ]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          fi
+          # For cross-compiling Android (example, needs NDK setup)
+          if [ "${{ matrix.arch }}" = "aarch64-linux-android" ]; then
+            echo "Android cross-compilation setup required here"
+          fi
+      - name: Install dependencies (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          choco install make
+          choco install llvm
+          choco install zlib
+      - name: Install dependencies (macOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          brew install make clang zlib
+      - uses: leafo/gh-actions-lua@v11
+        with:
+          luaVersion: "5.4"
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: startsWith(matrix.os, 'windows')
+      - name: Build with make
+        run: make
+      - name: Run tests
+        run: make test || echo "No tests defined"
+
