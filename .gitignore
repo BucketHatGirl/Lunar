@@ -1,4 +1,5 @@
 ./Lunar
 ./.git
-./Libraries/*.a
-./Tests/
+./Libraries/liblua.a
+./Libraries/libminiz.a
+./Tests
