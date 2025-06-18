@@ -51,6 +51,10 @@ namespace Methods {
       static void CollectGarbage(lua_State* L);
   };
 
+  class Config {
+    public:
+      static auto Load(lua_State* L); 
+  };
   
 
 };

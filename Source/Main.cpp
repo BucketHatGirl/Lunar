@@ -20,11 +20,16 @@ static int Require(lua_State* L) {
   std::replace(PATH.begin(), PATH.end(), '.', '/');
   PATH += ".lua";
   size_t X = 0;
-  void* DATA = Methods::Binary::FetchFused(&ARCHIVE, PATH.c_str(), &X);
-  if (!DATA) return 0;
-
-  if (luaL_loadbuffer(L, (const char*)DATA, X, "PROGRAM_REQUIRE") == LUA_OK) {
-    mz_free(DATA);
+  void* FILE = Methods::Binary::FetchFused(&ARCHIVE, (PATH += ".lua").c_str(), &X);
+  if (!FILE) FILE = Methods::Binary::FetchFused(&ARCHIVE, (PATH += ".luac").c_str(), &X);
+  if (!FILE) FILE = Methods::Binary::FetchFused(&ARCHIVE, (PATH += ".so").c_str(), &X);
+  if (!FILE) FILE = Methods::Binary::FetchFused(&ARCHIVE, (PATH += ".dll").c_str(), &X);
+  if (!FILE) {
+    std::cout << "[Lunar] -> [Error] -> Unable to load file ~> " << NAME << " with extensions ~> .dll .so .luac .lua. Make sure you only include the file name without the extension." << std::endl;
+    exit(0);
+  }
+  if (luaL_loadbuffer(L, (const char*)FILE, X, "PROGRAM_REQUIRE") == LUA_OK) {
+    mz_free(FILE);
     return 1;
   } else {
     std::cout << "[Lunar] -> [Error] -> Could not require file ~> " << lua_tostring(L, -1) << std::endl;
@@ -80,8 +85,15 @@ int main(int NUM, const char *ARGV[]) {
   }
 
   std::map<std::string, std::string> ARGS;
-  for (int X = 1; X < NUM - 1; X += 2) {
-    ARGS[ARGV[X]] = ARGV[X + 1];
+  for (int X = 1; X < NUM; ++X) {
+    std::string ARG = ARGV[X];
+    if (ARG == "help") {
+        ARGS[ARG] = "H";
+    } else if (X + 1 < NUM && std::string(ARGV[X + 1]) != "help") {
+        ARGS[ARG] = ARGV[++X];
+    } else {
+        ARGS[ARG] = "";
+    }
   }
 
   if (!ARGS.count("help")) {
@@ -114,8 +126,24 @@ int main(int NUM, const char *ARGV[]) {
       exit(0);
     }
     exit(0);
-  } else {
+  } else if (ARGS.at("help") == "H"){
+    std::cout << R"(
+    Lunar ~> Commands
 
+      dump   ~> Lunar dump <file/directory>
+             ~> Dumps lua code into lua bytecode, reccommended for compilation and code security.
+
+      build  ~> Lunar build <directory>
+             ~> Compile a directory containing \"Config.lua\" and any other neccesary files
+                into a binary executable for YOUR platform.
+
+      string ~> Lunar string <string>
+             ~> Interpret a lua string.
+
+      run    ~> Lunar run <file>
+             ~> Interpret lua or lua bytecode files.
+    )" << std::endl;
+    exit(0);
   }
   return 0;
 }
