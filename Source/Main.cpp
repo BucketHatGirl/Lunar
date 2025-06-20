@@ -49,41 +49,21 @@ int main(int NUM, const char *ARGV[]) {
     lua_rawseti(L, -2, 2);
     lua_pop(L, 2);
     Methods::Binary::InitFused(&ARCHIVE, DATA);
-    void* CONFIG = Methods::Binary::FetchFused(&ARCHIVE, "Config.lua", &SIZE);
+    void* CONFIG = Methods::Binary::FetchFused(&ARCHIVE, ".lua", &SIZE);
     if (CONFIG) {
-      if (luaL_loadbuffer(L, (const char*)CONFIG, SIZE, "PROGRAM_CONFIG") == LUA_OK) {
-        if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
-          std::cout << "[Lunar] -> [Error] -> There is an error in your 'Config.lua' ~> " << lua_tostring(L, -1) << std::endl;
-          exit(0);
-        } else {
-          lua_getglobal(L, "MAIN");
-          mz_free(CONFIG);
-          Methods::Memory::CollectGarbage(L);
-          void* MAIN = Methods::Binary::FetchFused(&ARCHIVE, lua_tostring(L, -1), &SIZE);
-          lua_pop(L, 1);
-          if (MAIN) {
-            if (luaL_loadbuffer(L, (const char*)MAIN, SIZE, "PROGRAM") == LUA_OK) {
-              if (lua_pcall(L, 0, LUA_MULTRET, 0) != LUA_OK) {
-                std::cout << "[Lunar] -> [Error] -> Error running program ~> " << lua_tostring(L, -1) << std::endl;
-                exit(0);
-              }
-            }
-          } else {
-            std::cout << "[Lunar] -> [Error] -> Error loading buffer from memory ~> " << lua_tostring(L, -1) << std::endl;
-            exit(0);
-          } 
+      if (luaL_loadbuffer(L, (const char*)CONFIG, SIZE, "PROGRAM _CONFIG") == LUA_OK) {
+        if (lua_pcall(L, 0, LUA_MULTRET, 0) == LUA_OK) {
+
+          
+        } else { 
+          std::cout << "[Lunar] -> [Error] -> Error in config ~> " << lua_tostring(L, 1) << std::endl;
         }
       }
     } else {
-      std::cout << "[Lunar] -> [Error] -> 'Config.lua' not found." << std::endl;
-      exit(0);
+      std::cout << "[Lunar] -> [Error] -> Could not load config." << std::endl;
     }
-    Methods::Timer::Stop();
-    T.join();
-    std::cout << "\n[Lunar] -> Program ran for ~> " << Methods::Timer::ELAPSED << "ms." << std::endl;
     exit(0);
   }
-
   std::map<std::string, std::string> ARGS;
   for (int X = 1; X < NUM; ++X) {
     std::string ARG = ARGV[X];
@@ -135,13 +115,19 @@ int main(int NUM, const char *ARGV[]) {
 
       build  ~> Lunar build <directory>
              ~> Compile a directory containing \"Config.lua\" and any other neccesary files
-                into a binary executable for YOUR platform.
+             ~> into a binary executable for YOUR platform.
 
       string ~> Lunar string <string>
              ~> Interpret a lua string.
 
       run    ~> Lunar run <file>
              ~> Interpret lua or lua bytecode files.
+
+    Lunar ~> Flags
+
+      -l     ~> Log output to file.
+      -v     ~> Be more verbose.
+
     )" << std::endl;
     exit(0);
   }

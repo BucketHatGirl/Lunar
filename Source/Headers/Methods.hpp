@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <lua5.4/lua.hpp>
+#include <map>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -53,7 +54,8 @@ namespace Methods {
 
   class Config {
     public:
-      static auto Load(lua_State* L); 
+      static std::map<const char*, std::vector<const char*>> CONFIG;
+      static void Parse(const char* BUFFER); 
   };
   
 

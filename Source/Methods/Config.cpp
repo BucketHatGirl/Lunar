@@ -1,15 +1,15 @@
 #include "../Headers/Methods.hpp"
+#include <iostream>
 #include <lua5.4/lua.h>
 #include <lua5.4/lua.hpp>
 #include <map>
+#include <vector>
 
-struct CONFIG {
-  const char* MAIN;
-  std::map<const char*, bool> PRELOAD;
-};
 
-auto Methods::Config::Load(lua_State *L) {
-  lua_getglobal(L, "CONFIG");
+std::map<const char*, std::vector<const char*>> CONFIG;
+
+void Methods::Config::Parse(lua_State* L) { 
+
 }
 
 

@@ -1,10 +1,13 @@
 # Lunar 
 `
- A modernized lua interpreter 
+ A modernized take on lua  
 `
 ## Roadmap/Features
-- [x] Compiler
-- [x] Support for lua bytecode
+- [ ] Custom interpreter
+- [ ] Compilation
+    - [ ] Shared library
+    - [ ] Binary
+    - [x] Fused
 - [ ] Custom modules
     - [ ] Networking
     - [ ] Graphics
@@ -13,7 +16,7 @@
     - [ ] Macro
     - [ ] Memory
     - [ ] Data
-- [ ] Plugin system
-- [ ] Memory/Disk managment
+    - [ ] FFI
 - [ ] Github actions cross-compiler
 - [ ] Cool space themed names B)
+- [ ] Support for micro controllers
